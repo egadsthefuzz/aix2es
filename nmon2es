@@ -1,0 +1,5 @@
+#!/bin/ksh
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2018 William Reynolds
+
+rm -f /opt/monitoring/nmon2json.* && rm -f /opt/monitoring/nmon.out && nmon -f -G -F /opt/monitoring/nmon.out -s 5 -c 1 && /opt/monitoring/waiton $(ps auxww | grep 'nmon.out' | grep -v grep | grep -v awk | awk '{print $2}') && /opt/monitoring/nmon2json /opt/monitoring/nmon.out | perl -pe 's/^{\n/{/g' > /opt/monitoring/nmon.json && /opt/monitoring/es_post_nmon.pl

@@ -1,0 +1,171 @@
+#!/usr/bin/ksh
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2018 William Reynolds
+
+#information(name, value, comma)
+information()
+{
+    if [[ $3 == 0 ]]
+    then
+        print "\t\"$1\": \"$2\""
+    else
+        print "\t\"$1\": \"$2\","
+    fi
+}
+
+# timestamp "datetimestring"
+timestamp()
+{
+        print -n "\"timestamp\": \"$1\""
+}
+
+# stats name value
+stats()
+{
+        print -n ",\"$1\": $2"
+}
+
+# stats name value
+statstr()
+{
+        print -n ",\"$1\": \"$2\""
+}
+
+snip34()
+{
+
+        print -n "`date -u +%Y-%m-%dT%H:%M:%S.000`"
+
+}
+
+snip3plus()
+{
+        shift
+        shift
+        shift
+        print -n $*
+}
+
+snip()
+{
+        count=$1
+        shift
+        case $count in
+        10)
+                echo ${10}
+        ;;
+        11)
+                echo ${11}
+        ;;
+        12)
+                echo ${12}
+        ;;
+        13)
+                echo ${13}
+        ;;
+        14)
+                echo ${14}
+        ;;
+        15)
+                echo ${15}
+        ;;
+        16)
+                echo ${16}
+        ;;
+        17)
+                echo ${17}
+        ;;
+        18)
+                echo ${18}
+        ;;
+        19)
+                echo ${19}
+        ;;
+        20)
+                echo ${20}
+        ;;
+        21)
+                echo ${21}
+        ;;
+        22)
+                echo ${22}
+        ;;
+        23)
+                echo ${23}
+        ;;
+        24)
+                echo ${24}
+        ;;
+        25)
+                echo ${25}
+        ;;
+        1)
+                echo $1
+        ;;
+        2)
+                echo $2
+        ;;
+        3)
+                echo $3
+        ;;
+        4)
+                echo $4
+        ;;
+        5)
+                echo $5
+        ;;
+        6)
+                echo $6
+        ;;
+        7)
+                echo $7
+        ;;
+        8)
+                echo $8
+        ;;
+        9)
+                echo $9
+        ;;
+        esac
+}
+host=`hostname`
+iostat -RDTld  60 1| grep -v '^$' | grep -v '^System configuration' | grep -v '^----' | grep -v '^Disks:' | grep -v '^         ' | sed 's/, /,/g' | sed 's/%//g' | tr "_" "-" | tr " " "_" | tr "," " " | sed 's/__/_/g' | sed 's/__/_/g' | sed 's/__/_/g' | sed 's/__/_/g' | tr "_" " " | sed 's/ -/ 0/g' |  while read line
+do
+
+            print "}\n{ \"index\" : {} }\n{"
+
+        timestamp $(snip34 $line)
+
+# start of enbeded info: data
+
+        statstr diskname $(snip 1 $line)
+        statstr host     $host
+
+        typeset -l diskname
+        diskname=$(snip 1 $line)
+        stats ${diskname}_xfers_pct_tm_act $(snip 2 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_xfers_bps $(snip 3 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_xfers_tps $(snip 4 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_xfers_bread $(snip 5 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_xfers_bwrtn $(snip 6 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_rps $(snip 7 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_avg_serv $(snip 8 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_min_serv $(snip 9 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_max_serv $(snip 10 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_time_outs $(snip 11 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_read_fail $(snip 12 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_wps $(snip 13 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_avg_serv $(snip 14 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_min_serv $(snip 15 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_max_serv $(snip 16 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_time_outs $(snip 17 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_write_fail $(snip 18 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_queue_avg_time $(snip 19 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(60000);next}')
+        stats ${diskname}_queue_min_time $(snip 20 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(60000);next}')
+        stats ${diskname}_queue_max_time $(snip 21 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(60000);next}')
+        stats ${diskname}_queue_avg_wqsz $(snip 22 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_queue_avg_sqsz $(snip 23 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+        stats ${diskname}_serv_qfull $(snip 24 $line|awk '/[0-9]$/{print $1;next};/[mM]$/{printf "%u\n", $1*(1024*1024);next};/[kK]$/{printf "%u\n", $1*1024;next}')
+#        statstr ${diskname}_time $(snip 25 $line)
+done
+print "}\n}\n"

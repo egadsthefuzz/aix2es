@@ -1,0 +1,435 @@
+#!/usr/bin/ksh
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2018 William Reynolds
+
+#information(name, value, comma)
+information()
+{
+    if [[ $3 == 0 ]]
+    then
+        print "\t\"$1\": \"$2\""
+    else
+        print "\t\"$1\": \"$2\","
+    fi
+}
+
+# timestampe "datetimestring"
+timestamp()
+{
+        print -n "\"timestamp\": \"$1\""
+}
+
+# stats name value
+stats()
+{
+        print -n ",\"$1\": $2"
+}
+
+# stats name value
+statstr()
+{
+        print -n ",\"$1\": \"$2\""
+}
+
+snip34()
+{
+#        $shifted4=`date -d ${4} +%Y-%m-%d`
+#       print -n "`date +%Y-%m-%dT${25}.000+1000`"
+       print -n "`date -u +%Y-%m-%dT%H:%M:%S.000`"
+
+#       print -n "`date +%Y-%m-%d`T${3}.000+10:00"
+}
+
+snip3plus()
+{
+        shift
+        shift
+        shift
+        print -n $*
+}
+
+snip()
+{
+        count=$1
+        shift
+        case $count in
+        10)
+                echo ${10}
+        ;;
+        11)
+                echo ${11}
+        ;;
+        12)
+                echo ${12}
+        ;;
+        13)
+                echo ${13}
+        ;;
+        14)
+                echo ${14}
+        ;;
+        15)
+                echo ${15}
+        ;;
+        16)
+                echo ${16}
+        ;;
+        17)
+                echo ${17}
+        ;;
+        18)
+                echo ${18}
+        ;;
+        19)
+                echo ${19}
+        ;;
+        20)
+                echo ${20}
+        ;;
+        21)
+                echo ${21}
+        ;;
+        22)
+                echo ${22}
+        ;;
+        23)
+                echo ${23}
+        ;;
+        24)
+                echo ${24}
+        ;;
+        25)
+                echo ${25}
+        ;;
+        26)
+                echo ${26}
+        ;;
+        27)
+                echo ${27}
+        ;;
+        28)
+                echo ${28}
+        ;;
+        29)
+                echo ${29}
+        ;;
+        30)
+                echo ${30}
+        ;;
+        31)
+                echo ${31}
+        ;;
+        32)
+                echo ${32}
+        ;;
+        33)
+                echo ${33}
+        ;;
+        34)
+                echo ${34}
+        ;;
+        35)
+                echo ${35}
+        ;;
+        36)
+                echo ${36}
+        ;;
+        37)
+                echo ${37}
+        ;;
+        38)
+                echo ${38}
+        ;;
+        39)
+                echo ${39}
+        ;;
+        40)
+                echo ${40}
+        ;;
+        41)
+                echo ${41}
+        ;;
+        42)
+                echo ${42}
+        ;;
+        43)
+                echo ${43}
+        ;;
+        44)
+                echo ${44}
+        ;;
+        45)
+                echo ${45}
+        ;;
+        46)
+                echo ${46}
+        ;;
+        47)
+                echo ${47}
+        ;;
+        48)
+                echo ${48}
+        ;;
+        49)
+                echo ${49}
+        ;;
+        50)
+                echo ${50}
+        ;;
+
+        51)
+                echo ${51}
+        ;;
+        52)
+                echo ${52}
+        ;;
+        53)
+                echo ${53}
+        ;;
+        54)
+                echo ${54}
+        ;;
+        55)
+                echo ${55}
+        ;;
+        56)
+                echo ${56}
+        ;;
+        57)
+                echo ${57}
+        ;;
+        58)
+                echo ${58}
+        ;;
+        59)
+                echo ${59}
+        ;;
+        60)
+                echo ${60}
+        ;;
+
+        61)
+                echo ${61}
+        ;;
+        62)
+                echo ${62}
+        ;;
+        63)
+                echo ${63}
+        ;;
+        64)
+                echo ${64}
+        ;;
+        65)
+                echo ${65}
+        ;;
+        66)
+                echo ${66}
+        ;;
+        67)
+                echo ${67}
+        ;;
+        68)
+                echo ${68}
+        ;;
+        69)
+                echo ${69}
+        ;;
+        70)
+                echo ${70}
+        ;;
+
+        71)
+                echo ${71}
+        ;;
+        72)
+                echo ${72}
+        ;;
+        73)
+                echo ${73}
+        ;;
+        74)
+                echo ${74}
+        ;;
+        75)
+                echo ${75}
+        ;;
+        76)
+                echo ${76}
+        ;;
+        77)
+                echo ${77}
+        ;;
+        78)
+                echo ${78}
+        ;;
+        79)
+                echo ${79}
+        ;;
+        80)
+                echo ${80}
+        ;;
+
+        81)
+                echo ${81}
+        ;;
+        82)
+                echo ${82}
+        ;;
+        83)
+                echo ${83}
+        ;;
+        84)
+                echo ${84}
+        ;;
+        85)
+                echo ${85}
+        ;;
+        86)
+                echo ${86}
+        ;;
+        87)
+                echo ${87}
+        ;;
+        88)
+                echo ${88}
+        ;;
+        89)
+                echo ${89}
+        ;;
+        90)
+                echo ${90}
+        ;;
+
+        91)
+                echo ${91}
+        ;;
+        92)
+                echo ${92}
+        ;;
+        93)
+                echo ${93}
+        ;;
+        94)
+                echo ${94}
+        ;;
+        95)
+                echo ${95}
+        ;;
+        96)
+                echo ${96}
+        ;;
+        97)
+                echo ${97}
+        ;;
+        98)
+                echo ${98}
+        ;;
+        99)
+                echo ${99}
+        ;;
+
+        1)
+                echo $1
+        ;;
+        2)
+                echo $2
+        ;;
+        3)
+                echo $3
+        ;;
+        4)
+                echo $4
+        ;;
+        5)
+                echo $5
+        ;;
+        6)
+                echo $6
+        ;;
+        7)
+                echo $7
+        ;;
+        8)
+                echo $8
+        ;;
+        9)
+                echo $9
+        ;;
+        esac
+}
+host=`hostname`
+for s in `lsdev -Cc adapter  | grep '^fcs'|  awk '{print $1}'` ; do     echo ; fcstat -e $s | grep -v '^$' | grep -v '^FC-4 TYPES' | grep -v '^  Supported' | grep -v '  Active' | tr "\t" " "  | grep -v '^ \-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-' | sed 's/  / /g' | sed 's/  / /g' | sed 's/  / /g' | sed 's/  / /g'  | sed 's/^ //g' | sed 's/ $//g' | grep -v '^\-\-\-\-\-\-\-' | grep -v '^Small' | sed 's/  / /g' |  tr " " "_" | sed 's/:_/ /g' | tr "\n" " "; done | while read line
+
+
+
+do
+    FCCHECK=$(snip 2 $line)
+
+    if [[ $FCCHECK != fcs* ]]
+    then
+        # Skip lines without a device as they are header liens
+        continue
+    fi
+
+
+            print "}\n{ \"index\" : {} }\n{"
+
+        timestamp $(snip34 $line)
+#print $line
+# start of enbeded info: data
+
+        statstr fcdev_name $(snip 2 $line)
+        statstr host     $host
+        statstr $(snip 3 $line) $(snip 4 $line)
+        statstr $(snip 5 $line) $(snip 6 $line)
+        statstr $(snip 7 $line) $(snip 8 $line)
+        statstr $(snip 9 $line) $(snip 10 $line)
+        statstr $(snip 11 $line) $(snip 12 $line)
+        statstr $(snip 13 $line) $(snip 14 $line)
+        statstr $(snip 15 $line) $(snip 16 $line)
+        statstr $(snip 17 $line) $(snip 18 $line)
+        statstr $(snip 19 $line) $(snip 20 $line)
+        statstr $(snip 21 $line) $(snip 22 $line)
+        statstr $(snip 23 $line) $(snip 24 $line)
+        statstr $(snip 25 $line) $(snip 26 $line)
+        stats $(snip 27 $line) $(snip 28 $line)
+        statstr $(snip 29 $line)_$(snip 30 $line) $(snip 31 $line)
+        statstr $(snip 29 $line)_$(snip 32 $line) $(snip 33 $line)
+        stats $(snip 34 $line) $(snip 35 $line)
+        stats $(snip 36 $line) $(snip 37 $line)
+        stats $(snip 38 $line) $(snip 39 $line)
+        stats $(snip 40 $line) $(snip 41 $line)
+        stats $(snip 42 $line) $(snip 43 $line)
+        stats $(snip 44 $line) $(snip 45 $line)
+        stats $(snip 46 $line) $(snip 47 $line)
+        stats $(snip 48 $line) $(snip 49 $line)
+        stats $(snip 50 $line) $(snip 51 $line)
+        stats $(snip 52 $line) $(snip 53 $line)
+        stats $(snip 54 $line)_$(snip 55 $line) $(snip 56 $line)
+        stats $(snip 54 $line)_$(snip 57 $line) $(snip 58 $line)
+        stats $(snip 59 $line)_$(snip 60 $line) $(snip 61 $line)
+        stats $(snip 59 $line)_$(snip 62 $line) $(snip 63 $line)
+        stats $(snip 59 $line)_$(snip 64 $line) $(snip 65 $line)
+        stats $(snip 66 $line)_$(snip 67 $line) $(snip 68 $line)
+        stats $(snip 66 $line)_$(snip 69 $line) $(snip 70 $line)
+        stats $(snip 66 $line)_$(snip 71 $line) $(snip 72 $line)
+        stats $(snip 66 $line)_$(snip 73 $line) $(snip 74 $line)
+        stats $(snip 66 $line)_$(snip 75 $line) $(snip 76 $line)
+        stats $(snip 77 $line)_$(snip 78 $line) $(snip 79 $line)
+        stats $(snip 77 $line)_$(snip 80 $line) $(snip 81 $line)
+        stats $(snip 77 $line)_$(snip 82 $line) $(snip 83 $line)
+        stats $(snip 77 $line)_$(snip 84 $line) $(snip 85 $line)
+        stats $(snip 77 $line)_$(snip 86 $line) $(snip 87 $line)
+        statstr $(snip 88 $line) $(snip 89 $line)
+#        stats $(snip 64 $line)_$(snip 69 $line) $(snip 70 $line)
+#        stats $(snip 64 $line)_$(snip 71 $line) $(snip 72 $line)
+#        stats $(snip 64 $line)_$(snip 73 $line) $(snip 74 $line)
+#        stats $(snip 75 $line)_$(snip 76 $line) $(snip 77 $line)
+#        stats $(snip 75 $line)_$(snip 78 $line) $(snip 79 $line)
+#        stats $(snip 75 $line)_$(snip 80 $line) $(snip 81 $line)
+#        stats $(snip 75 $line)_$(snip 82 $line) $(snip 83 $line)
+#        stats $(snip 75 $line)_$(snip 84 $line) $(snip 85 $line)
+#        statstr $(snip 86 $line) $(snip 87 $line)
+done
+print "}\n}\n"

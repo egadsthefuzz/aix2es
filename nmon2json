@@ -1,0 +1,467 @@
+#!/usr/bin/ksh
+version=26
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2017. Nigel Griffiths
+# Additions by William Reynolds 2018 to parse for elasticsearch
+#information(name, value, comma)
+information()
+{
+    if [[ $3 == 0 ]]
+    then
+        print "\t\"$1\": \"$2\""
+    else
+        print "\t\"$1\": \"$2\","
+    fi
+}
+
+# timestamp "datetimestring"
+timestamp()
+{
+        print -n "\"timestamp\": \"$1\"" 
+}
+
+# stats name value
+stats()
+{
+        print -n ",\"$1\": $2"
+}
+
+# stats name value
+statstr()
+{
+        print -n ",\"$1\": \"$2\""
+}
+
+snip34()
+{
+
+       print -n "`date -u +%Y-%m-%d`T${3}.000"
+
+}
+
+snip3plus()
+{
+	shift
+	shift
+	shift
+	print -n $*
+}
+
+snip()
+{
+	count=$1
+	shift
+	case $count in
+	10)
+		echo ${10}
+	;;
+	11)
+		echo ${11}
+	;;
+	12)
+		echo ${12}
+	;;
+	13)
+		echo ${13}
+	;;
+	14)
+		echo ${14}
+	;;
+	15)
+		echo ${15}
+	;;
+	16)
+		echo ${16}
+	;;
+	17)
+		echo ${17}
+	;;
+	18)
+		echo ${18}
+	;;
+	19)
+		echo ${19}
+	;;
+	20)
+		echo ${20}
+	;;
+	21)
+		echo ${21}
+	;;
+	22)
+		echo ${22}
+	;;
+	23)
+		echo ${23}
+	;;
+	1)
+		echo $1
+	;;
+	2)
+		echo $2
+	;;
+	3)
+		echo $3
+	;;
+	4)
+		echo $4
+	;;
+	5)
+		echo $5
+	;;
+	6)
+		echo $6
+	;;
+	7)
+		echo $7
+	;;
+	8)
+		echo $8
+	;;
+	9)
+		echo $9
+	;;
+	esac
+}
+
+# - - - End of Function - - -
+
+# Check options
+if [[ $1 == "-h" ]]
+then
+	echo "Hint: Converts nmon for AIX and nmon for Linux .nmon files into JSON format."
+	echo "        Output to standard out, so redirect to a file or pipe or socket or FIFO"
+	echo ""
+	echo "nmon2json    nmonfile  -> Single level output"
+	echo "nmon2json -m nmonfile  -> Multi level output"
+	echo "nmon2json -h           -> output this help & version"
+	echo ""
+	echo "Default All data goes into an unnamed array of dictionaries (in Python terms)"
+	echo "-m      In Python terms, an \"info\": {...} dictionary once then "
+	echo "        followed by a \"samples\": array of dictionaries"
+	echo ""
+	echo "Example:"
+	echo "        ./nmon2json myfile.nmon >single_level.json"
+	echo "        ./nmon2json -m  myfile.nmon >multi_level.json"
+	echo ""
+	echo "Version: " $version
+	exit 0
+fi
+
+if [[ $1 == "-m" ]]
+then
+	single_level_mode=0
+	#echo "DEBUG: in multi level mode"
+	input=$2
+else
+	single_level_mode=1
+	#echo "DEBUG: in single level mode"
+	input=$1
+fi
+
+TMP=/tmp/nmon2json.$$
+grep ^AAA $input >$TMP
+
+grep "^AAA,OS,Linux" $TMP>/dev/null
+if [[ $? == 0 ]]
+then
+        isLINUX=1
+        isAIX=0
+else
+        isLINUX=0
+        isAIX=1
+fi
+started=0
+
+
+filename=$input
+host=$(grep ^AAA,host, $TMP | cut -f 3 -d ,)
+start_date=$(grep ^AAA,date, $TMP | cut -f 3 -d ,)
+start_time=$(grep ^AAA,time, $TMP | cut -f 3 -d ,)
+serial=$(grep ^AAA,SerialNumber, $TMP | cut -f 3 -d ,)
+if [[ $serial = "" ]]
+then
+    serial="unknown"
+fi
+lpar_name=$(grep ^AAA,LPARNumberName, $TMP | cut -f 4 -d ,)
+if [[ $lpar_name = "" ]]
+then
+    lpar_name="unknown"
+fi
+machine_type=$(grep ^AAA,MachineType, $TMP | cut -f 3- -d ,)
+if [[ $machine_type = "" ]]
+then
+    machine_type="unknown"
+fi
+runname=$(grep ^AAA,runname, $TMP | cut -f 3- -d ,)
+if (( isAIX ))
+then
+hardware=$(grep ^AAA,hardware, $TMP | cut -f 3- -d ,)
+OS="AIX":$(grep ^AAA,AIX, $TMP | cut -f 3 -d ,)
+nmon_version=$(grep ^AAA,progname, $TMP | cut -f 3 -d ,)
+else
+hardware=$(grep ^AAA,OS, $TMP | cut -f 6 -d ,)
+OS=$(grep ^AAA,OS, $TMP | cut -f 3- -d , | tr " " "-")
+nmon_version=$(grep ^AAA,version, $TMP | cut -f 3 -d ,)
+fi
+user=$(grep ^AAA,user, $TMP | cut -f 3 -d ,)
+interval=$(grep ^AAA,interval, $TMP | cut -f 3 -d ,)
+snapshots=$(grep ^AAA,snapshots, $TMP | cut -f 3 -d ,)
+
+rm -f $TMP
+
+
+# Start the output
+# start of separate info: { ... } section 
+if (( $single_level_mode == 0))
+then
+	print "{"
+	print "\"info\": {\n"
+	information filename $input 1
+	information host     $host 1
+	information start_date     $start_date 1
+	information start_time     $start_time 1
+	information serial   $serial 1
+	information lpar_name $lpar_name 1
+	information machine_type $machine_type 1
+	information runname $runname 1
+	information hardware "$hardware" 1
+	information OS       $OS 1
+	information user     $user 1
+	information nmon_version $nmon_version 1
+	information interval $interval 1
+	information snapshots $snapshots 0
+	print "},\n"
+	print "\"samples\": [\n{"
+else
+        print "{ \"index\" : {} }\n{"
+fi
+# end of separate info: { ... } section 
+
+# MAIN LOOP
+
+grep -v ^AAA $input | sed 's/BBB.*df -m/DF,T0001/g' |  grep -v ^BBB | grep -v ^TOP | grep -v ^UARG | grep -v ^PCPU | grep -v ^SCPU | grep -v ^JFS | grep -v ^IOADAPT | grep -v ^NETERROR | grep -v ^NETSIZE | grep -v ^DISKBSIZE | grep -v ^DISKRIO | grep -v ^DISKWIO | grep -v ^DISKAVG | grep -v ^POOL | grep -v ^DISKRXFER |sed 's/"//g' | grep -v '^DF,T0001$' | grep -v '^DF,T0001,dproc'  | grep -v '^DF,T0001,Filesystem' | sed 's/, /,/g' | sed 's/%//g' | tr "_" "-" | tr " " "_" | tr "," " " | sed 's/__/_/g' | sed 's/__/_/g' | sed 's/__/_/g' | sed 's/__/_/g' | tr "_" " " | sed 's/ -/ 0/g' |  while read line
+do
+    TAB=$(snip 1 $line)
+    TIME=$(snip 2 $line)
+    #isTIME=$(echo $TIME | cut -c 1)
+
+    if [[ $TIME != T* ]]
+    then
+        # Skip lines without a Tnnnnn as they are header liens
+	#echo skip time=$TIME $line
+        continue
+    fi 
+
+    case $TAB in 
+        ZZZZ)
+        if (( $started == 0 ))
+        then
+            started=1
+        else
+            print "}\n{ \"index\" : {} }\n{"
+        fi
+
+        timestamp $(snip34 $line)
+
+# start of enbeded info: data 
+if (( $single_level_mode == 1))
+then
+	statstr filename $input
+	statstr host     $host
+	statstr start_date     $start_date
+	statstr start_time     $start_time
+	statstr serial   $serial
+	statstr lpar_name $lpar_name
+	statstr machine_type $machine_type
+	statstr runname       $runname
+	statstr hardware       "$hardware"
+	statstr OS       $OS
+	statstr user     $user
+	statstr nmon_version $nmon_version
+	stats interval $interval
+	stats snapshots $snapshots
+fi
+# end of embedded info: data
+
+        ;;
+        CPU-ALL)
+        stats cpu_all_user $(snip 3 $line)
+        stats cpu_all_sys  $(snip 4 $line)
+        stats cpu_all_wait $(snip 5 $line)
+        stats cpu_all_idle $(snip 6 $line)
+        if (( isLINUX ))
+        then
+        stats cpu_all_steal $(snip 7 $line)
+	fi
+        ;;
+
+        CPU*) # placed after CPU_ALL
+	typeset -l lowercpu
+	lowercpu=$(snip 1 $line)
+        stats ${lowercpu}_user $(snip 3 $line)
+        stats ${lowercpu}_sys  $(snip 4 $line)
+        stats ${lowercpu}_wait $(snip 5 $line)
+        stats ${lowercpu}_idle $(snip 6 $line)
+        if (( isLINUX ))
+        then
+        stats ${lowercpu}_steal $(snip 7 $line)
+	fi
+        ;;
+
+        DF) # experiment to get the DF output hopefully 
+        typeset -l mount
+        typeset -l volume
+        mount=$(snip 9 $line)
+        volume=$(snip 3 $line)
+        stats ${volume}_${mount}_mb $(snip 4 $line)
+        stats ${volume}_${mount}_blocks  $(snip 5 $line)
+        stats ${volume}_${mount}_pct_used $(snip 6 $line)
+        stats ${volume}_${mount}_inode_used $(snip 7 $line)
+        stats ${volume}_${mount}_inode_pct_used $(snip 8 $line)
+#        stats ${volume}_${mount}_mounted_on $(snip 9 $line)
+        ;;
+
+
+        FILE)
+        stats file_iget     $(snip 3 $line)
+        stats file_namei    $(snip 4 $line)
+        stats file_dirblk   $(snip 5 $line)
+        stats file_readch   $(snip 6 $line)
+        stats file_writech  $(snip 7 $line)
+        stats file_ttyrawch $(snip 8 $line)
+        stats file_ttycanch $(snip 9 $line)
+        stats file_ttyoutch $(snip 10 $line)
+        ;;
+        LPAR)
+        stats lpar_physical_cpu      $(snip 3 $line)
+        stats lpar_virtual_cpu       $(snip 4 $line)
+        stats lpar_logical_cpu       $(snip 5 $line)
+        stats lpar_pool_cpu_cpu      $(snip 6 $line)
+        stats lpar_entitled          $(snip 7 $line)
+        stats lpar_weight            $(snip 8 $line)
+        stats lpar_pool_idle         $(snip 9 $line)
+        stats lpar_used_all_cpu      $(snip 10 $line)
+        stats lpar_used_pool_cpu     $(snip 11 $line)
+        stats lpar_shared_flg        $(snip 12 $line)
+        stats lpar_capped_flg        $(snip 13 $line)
+        stats lpar_folded            $(snip 22 $line)
+        ;;
+        MEMUSE)
+        stats memuse_numperm       $(snip 3 $line)
+        stats memuse_minperm       $(snip 4 $line)
+        stats memuse_maxperm       $(snip 5 $line)
+        stats memuse_minfree       $(snip 6 $line)
+        stats memuse_maxfree       $(snip 7 $line)
+        stats memuse_numclient     $(snip 8 $line)
+        stats memuse_maxyclient    $(snip 9 $line)
+        stats memuse_lruable_pages $(snip 10 $line)
+        ;;
+        MEMNEW)
+        stats memnew_process      $(snip 3 $line)
+        stats memnew_fs_cache     $(snip 4 $line)
+        stats memnew_system       $(snip 5 $line)
+        stats memnew_free         $(snip 6 $line)
+        stats memnew_pinned       $(snip 7 $line)
+        stats memnew_user         $(snip 8 $line)
+        ;;
+        MEM)
+	if (( isAIX ))
+	then
+        stats mem_real_free_mb    $(snip 5 $line)
+        stats mem_virtual_free_mb $(snip 6 $line)
+        stats mem_virtual_size_mb $(snip 8 $line)
+        stats mem_real_size_mb    $(snip 7 $line)
+	fi
+	if (( isLINUX ))
+	then
+        stats mem_memtotal    $(snip 3 $line)
+        stats mem_memfree     $(snip 7 $line)
+        stats mem_swaptotal   $(snip 6 $line)
+        stats mem_swapfree    $(snip 10 $line)
+        stats mem_cached_mb       $(snip 12 $line)
+        stats mem_active_mb       $(snip 13 $line)
+        stats mem_buffers_mb      $(snip 15 $line)
+        stats mem_inactive_mb     $(snip 17 $line)
+	fi
+        ;;
+        PAGE)
+        stats page_faults   $(snip 3 $line)
+        stats page_pgin     $(snip 4 $line)
+        stats page_pgout    $(snip 5 $line)
+        stats page_pgsin    $(snip 6 $line)
+        stats page_pgsout   $(snip 7 $line)
+        stats page_reclaims $(snip 8 $line)
+        stats page_scans    $(snip 9 $line)
+        stats page_cycles   $(snip 10 $line)
+       # These next 2 ONLY IF AIX AND AME IS ON
+       # stats page_ame_in   $(snip 11 $line)
+       # stats page_ame_out  $(snip 12 $line)
+        ;;
+        PAGING)
+        stats paging_space_free_mb $(snip 3 $line)
+        ;;
+        LARGEPAGE)
+        stats largepage_freepages $(snip 3 $line)
+        stats largepage_usedpages $(snip 4 $line)
+        stats largepage_pages     $(snip 5 $line)
+        stats largepage_highwater $(snip 5 $line)
+        stats largepage_size_mb   $(snip 6 $line)
+        ;;
+        PROCAIO)
+        stats aio_procs   $(snip 3 $line)
+        stats aio_running $(snip 4 $line)
+        stats aio_cpu     $(snip 5 $line)
+        ;;
+        PROC)
+        if (( isAIX ))
+        then
+        stats proc_runnable $(snip 3 $line)
+        stats proc_swapin   $(snip 4 $line)
+        stats proc_pswitch  $(snip 5 $line)
+        stats proc_syscall  $(snip 6 $line)
+        stats proc_read     $(snip 7 $line)
+        stats proc_write    $(snip 8 $line)
+        stats proc_fork     $(snip 9 $line)
+        stats proc_exec     $(snip 10 $line)
+        stats proc_sem      $(snip 11 $line)
+        stats proc_msg      $(snip 12 $line)
+        stats proc_asleep_bufio  $(snip 13 $line)
+        stats proc_asleep_rawio  $(snip 14 $line)
+        stats proc_asleep_diocio $(snip 15 $line)
+	fi
+
+	if (( isLINUX ))
+	then
+        stats proc_runnable $(snip 3 $line)
+        stats proc_blocked  $(snip 4 $line)
+        stats proc_pswitch  $(snip 5 $line)
+        stats proc_fork     $(snip 9 $line)
+	fi
+	;;
+
+        NET)
+        stats net_total_KBs $(snip3plus $line | awk '{for(i=1;i<=NF;i++) t+=$i; printf "%.1f", t; t=0}' )
+        ;;
+        NETPACKET)
+        stats net_total_packets $(snip3plus $line | awk '{for(i=1;i<=NF;i++) t+=$i; printf "%.1f", t; t=0}' )
+        ;;
+        DISKREAD) 
+        stats disk_read_KBs $(snip3plus $line | awk '{for(i=1;i<=NF;i++) t+=$i; printf "%.1f", t; t=0}' )
+        ;;
+        DISKWRITE)
+        stats disk_write_KBs $(snip3plus $line | awk '{for(i=1;i<=NF;i++) t+=$i; printf "%.1f", t; t=0}' )
+        ;;
+        DISKXFER)
+        stats disk_xfers $(snip3plus $line | awk '{for(i=1;i<=NF;i++) t+=$i; printf "%.1f", t; t=0}' )
+        ;;
+    esac
+done 
+
+if (( $single_level_mode == 0))
+then
+	print "}\n}\n"
+else
+	print "}\n"
+fi
+

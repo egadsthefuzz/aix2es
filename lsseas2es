@@ -1,0 +1,8 @@
+#!/usr/bin/ksh
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2018 William Reynolds
+
+
+/opt/monitoring/lsseas4json -b > /opt/monitoring/lsseas.json && /opt/monitoring/es_post_lsseas.pl
+
+

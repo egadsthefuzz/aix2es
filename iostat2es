@@ -1,0 +1,6 @@
+#!/usr/bin/ksh
+# License GNU General Public License version 3.0 (GPLv3)
+# (c) Copyright 2018 William Reynolds
+
+
+/opt/monitoring/iostat2json | perl -pe 's/^{\n/{/g' | grep -v '^}$' > /opt/monitoring/iostat.json && /opt/monitoring/es_post_iostat.pl
